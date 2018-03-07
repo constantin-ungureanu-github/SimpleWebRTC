@@ -1,5 +1,9 @@
 'use strict';
 
+/****************************************************************************
+* Initial setup
+****************************************************************************/
+
 var configuration = {
 	'iceServers' : [
 		{
@@ -34,11 +38,11 @@ snapBtn.addEventListener('click', snapPhoto);
 sendBtn.addEventListener('click', sendPhoto);
 snapAndSendBtn.addEventListener('click', snapAndSend);
 
+// Create a random room if not already present in the URL.
 var isInitiator;
 var room = window.location.hash.substring(1);
-
 if (!room) {
-  room = window.location.hash = randomToken();
+	room = window.location.hash = randomToken();
 }
 
 /****************************************************************************
@@ -47,9 +51,9 @@ if (!room) {
 
 // Connect to the signaling server
 var socket = io.connect();
+
 socket.on('ipaddr', function(ipaddr) {
 	console.log('Server IP address is: ' + ipaddr);
-	updateRoom(ipaddr);
 });
 
 socket.on('created', function(room, clientId) {
@@ -103,15 +107,15 @@ function sendMessage(message) {
 /**
 * Updates URL on the page so that users can copy&paste it to their peers.
 */
-function updateRoom(ipaddr) {
-	var url;
-	if (!ipaddr) {
-		url = location.href;
-	} else {
-		url = location.protocol + '//' + ipaddr + ':2013/#' + room;
-	}
-	room.innerHTML = url;
-}
+// function updateRoomURL(ipaddr) {
+//   var url;
+//   if (!ipaddr) {
+//     url = location.href;
+//   } else {
+//     url = location.protocol + '//' + ipaddr + ':2013/#' + room;
+//   }
+//   roomURL.innerHTML = url;
+// }
 
 /****************************************************************************
 * User media (webcam)
@@ -122,9 +126,11 @@ function grabWebCamVideo() {
 	navigator.mediaDevices.getUserMedia({
 		audio : false,
 		video : true
-	}).then(gotStream).catch(function(e) {
-		alert('getUserMedia() error: ' + e.name);
-	});
+	})
+		.then(gotStream)
+		.catch(function(e) {
+			alert('getUserMedia() error: ' + e.name);
+		});
 }
 
 function gotStream(stream) {
@@ -264,7 +270,8 @@ function receiveDataFirefoxFactory() {
 
 		parts.push(event.data);
 		count += event.data.size;
-		console.log('Got ' + event.data.size + ' byte(s), ' + (total - count) + ' to go.');
+		console.log('Got ' + event.data.size + ' byte(s), ' + (total - count) +
+			' to go.');
 
 		if (count === total) {
 			console.log('Assembling payload');
@@ -287,6 +294,7 @@ function receiveDataFirefoxFactory() {
 	};
 }
 
+
 /****************************************************************************
 * Aux functions, mostly UI-related
 ****************************************************************************/
@@ -297,6 +305,7 @@ function snapPhoto() {
 }
 
 function sendPhoto() {
+	// Split data channel message in chunks of this byte length.
 	var CHUNK_LEN = 64000;
 	console.log('width and height ', photoContextW, photoContextH);
 	var img = photoContext.getImageData(0, 0, photoContextW, photoContextH),
@@ -306,8 +315,10 @@ function sendPhoto() {
 	console.log('Sending a total of ' + len + ' byte(s)');
 	dataChannel.send(len);
 
+	// split the photo and send in chunks of about 64KB
 	for (var i = 0; i < n; i++) {
-		var start = i * CHUNK_LEN, end = (i + 1) * CHUNK_LEN;
+		var start = i * CHUNK_LEN,
+			end = (i + 1) * CHUNK_LEN;
 		console.log(start + ' - ' + (end - 1));
 		dataChannel.send(img.data.subarray(start, end));
 	}
@@ -329,7 +340,7 @@ function renderPhoto(data) {
 	canvas.width = photoContextW;
 	canvas.height = photoContextH;
 	canvas.classList.add('incomingPhoto');
-
+	// trail is the element holding the incoming images
 	trail.insertBefore(canvas, trail.firstChild);
 
 	var context = canvas.getContext('2d');
