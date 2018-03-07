@@ -36,6 +36,7 @@ snapAndSendBtn.addEventListener('click', snapAndSend);
 
 var isInitiator;
 var room = window.location.hash.substring(1);
+
 if (!room) {
   room = window.location.hash = randomToken();
 }
@@ -124,7 +125,6 @@ function grabWebCamVideo() {
 	}).then(gotStream).catch(function(e) {
 		alert('getUserMedia() error: ' + e.name);
 	});
-
 }
 
 function gotStream(stream) {
@@ -264,8 +264,7 @@ function receiveDataFirefoxFactory() {
 
 		parts.push(event.data);
 		count += event.data.size;
-		console.log('Got ' + event.data.size + ' byte(s), ' + (total - count) +
-			' to go.');
+		console.log('Got ' + event.data.size + ' byte(s), ' + (total - count) + ' to go.');
 
 		if (count === total) {
 			console.log('Assembling payload');
@@ -288,7 +287,6 @@ function receiveDataFirefoxFactory() {
 	};
 }
 
-
 /****************************************************************************
 * Aux functions, mostly UI-related
 ****************************************************************************/
@@ -309,8 +307,7 @@ function sendPhoto() {
 	dataChannel.send(len);
 
 	for (var i = 0; i < n; i++) {
-		var start = i * CHUNK_LEN,
-			end = (i + 1) * CHUNK_LEN;
+		var start = i * CHUNK_LEN, end = (i + 1) * CHUNK_LEN;
 		console.log(start + ' - ' + (end - 1));
 		dataChannel.send(img.data.subarray(start, end));
 	}
@@ -332,7 +329,7 @@ function renderPhoto(data) {
 	canvas.width = photoContextW;
 	canvas.height = photoContextH;
 	canvas.classList.add('incomingPhoto');
-	// trail is the element holding the incoming images
+
 	trail.insertBefore(canvas, trail.firstChild);
 
 	var context = canvas.getContext('2d');
