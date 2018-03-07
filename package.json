@@ -1,0 +1,14 @@
+{
+	"name": "webrtc",
+	"version": "1.0.0",
+	"description": "Simple WebRTC",
+	"dependencies": {
+		"node-static": "latest",
+		"socket.io": "latest"
+	},
+	"scripts": {
+		"start": "node index.js"
+	},
+	"author": "Constantin Ungureanu",
+	"license": "MIT"
+}
