@@ -1,12 +1,23 @@
 'use strict';
 
 var configuration = {
-	'iceServers' : [ {
-		'urls' : 'stun:stun.l.google.com:19302'
-	} ]
+	'iceServers' : [
+		{
+			'urls' : 'stun:stun.l.google.com:19302'
+		},
+		{
+			'urls' : 'turn:192.158.29.39:3478?transport=udp',
+			'credential' : 'JZEOEt2V3Qb0y27GRntt2u2PAYA=',
+			'username' : '28224511:1379330808'
+		},
+		{
+			'urls' : 'turn:192.158.29.39:3478?transport=tcp',
+			'credential' : 'JZEOEt2V3Qb0y27GRntt2u2PAYA=',
+			'username' : '28224511:1379330808'
+		}
+	]
 };
 
-var room = document.getElementById('url');
 var video = document.querySelector('video');
 var photo = document.getElementById('photo');
 var photoContext = photo.getContext('2d');
@@ -23,6 +34,12 @@ snapBtn.addEventListener('click', snapPhoto);
 sendBtn.addEventListener('click', sendPhoto);
 snapAndSendBtn.addEventListener('click', snapAndSend);
 
+var isInitiator;
+var room = window.location.hash.substring(1);
+if (!room) {
+  room = window.location.hash = randomToken();
+}
+
 /****************************************************************************
 * Signaling server
 ****************************************************************************/
@@ -34,7 +51,6 @@ socket.on('ipaddr', function(ipaddr) {
 	updateRoom(ipaddr);
 });
 
-var isInitiator;
 socket.on('created', function(room, clientId) {
 	console.log('Created room', room, '- my client ID is', clientId);
 	isInitiator = true;
@@ -108,7 +124,7 @@ function grabWebCamVideo() {
 	}).then(gotStream).catch(function(e) {
 		alert('getUserMedia() error: ' + e.name);
 	});
-		
+
 }
 
 function gotStream(stream) {
@@ -283,16 +299,18 @@ function snapPhoto() {
 }
 
 function sendPhoto() {
-
 	var CHUNK_LEN = 64000;
 	console.log('width and height ', photoContextW, photoContextH);
-	var img = photoContext.getImageData(0, 0, photoContextW, photoContextH), len = img.data.byteLength, n = len / CHUNK_LEN | 0;
+	var img = photoContext.getImageData(0, 0, photoContextW, photoContextH),
+		len = img.data.byteLength,
+		n = len / CHUNK_LEN | 0;
 
 	console.log('Sending a total of ' + len + ' byte(s)');
 	dataChannel.send(len);
 
 	for (var i = 0; i < n; i++) {
-		var start = i * CHUNK_LEN, end = (i + 1) * CHUNK_LEN;
+		var start = i * CHUNK_LEN,
+			end = (i + 1) * CHUNK_LEN;
 		console.log(start + ' - ' + (end - 1));
 		dataChannel.send(img.data.subarray(start, end));
 	}
